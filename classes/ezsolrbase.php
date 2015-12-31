@@ -403,6 +403,7 @@ class eZSolrBase
 
     /**
      * Sends the updated elevate configuration to Solr
+     * DEFUNCT, since using solr 5.4+
      *
      * @params array $params Raw query parameters
      *
@@ -414,7 +415,8 @@ class eZSolrBase
      */
     function pushElevateConfiguration( $params )
     {
-        return $this->rawSearch( $params );
+        //return $this->rawSearch( $params );
+        return true;
     }
 
     /**

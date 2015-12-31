@@ -435,14 +435,11 @@ class eZFindElevateConfiguration extends eZPersistentObject
      * The requestHandler ( Solr extension ) will take care of reloading the configuration.
      *
      * @see $configurationXML
-     * @return void
+     * @param null $shard
+     * @throws Exception
      */
     protected static function pushConfigurationToSolr( $shard = null )
     {
-        $params = array(
-            'qt' => 'ezfind',
-            self::CONF_PARAM_NAME => self::getConfiguration()
-        );
 
         // Keep previous behaviour, but should not be needed
         if ( $shard === null )
@@ -450,11 +447,21 @@ class eZFindElevateConfiguration extends eZPersistentObject
             $shard = new eZSolrBase();
         }
 
-        $result = $shard->pushElevateConfiguration( $params );
+        $syncMethodConf = self::$solrINI->variable('Elevate','SyncMethod');
+
+        $result = false;
+
+        if (class_exists( $syncMethodConf['name'] ) )
+        {
+            $syncMethod= new $syncMethodConf['name'];
+            $result = $syncMethod->synchronise( $shard, self::getConfiguration(), $syncMethodConf );
+        } else {
+            eZDebug::writeError("Unable to find the PHP class " . $syncMethodConf['name'] .  " defined for elevate synchronisation ", __METHOD__);
+        }
 
         if ( ! $result )
         {
-            $message = ezpI18n::tr( 'extension/ezfind/elevate', 'An unknown error occured in updating Solr\'s elevate configuration.' );
+            $message = ezpI18n::tr( 'extension/ezfind/elevate', 'An error occured in updating Solr\'s elevate configuration.' );
             eZDebug::writeError( $message, __METHOD__ );
             throw new Exception( $message );
         }
@@ -464,7 +471,7 @@ class eZFindElevateConfiguration extends eZPersistentObject
         }
         else
         {
-            eZDebug::writeNotice( "Successful update of Solr's configuration.", __METHOD__ );
+            eZDebug::writeNotice( "Successful update of Solr's configuration through " . $syncMethodConf['name'] , __METHOD__ );
         }
     }
 

@@ -320,7 +320,7 @@ class ezfUpdateSearchIndexSolr
         $endTS = microtime_float();
 
         $this->CLI->output(
-            'Indexing took ' . ( $endTS - $startTS ) . ' secs ' .
+            'Indexing ' . $this->ObjectCount . ' objects took ' . ( $endTS - $startTS ) . ' secs ' .
             '( average: ' . ( $this->ObjectCount / ( $endTS - $startTS ) ) . ' objects/sec )'
         );
 

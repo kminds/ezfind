@@ -48,7 +48,8 @@ class eZSolr implements ezpSearchEngine
             'always_available' => 'boolean',
             'modified' => 'date',
             'published' => 'date',
-            'main_parent_node_id' => 'sint' );
+            'main_parent_node_id' => 'sint',
+            );
     }
 
     /**
