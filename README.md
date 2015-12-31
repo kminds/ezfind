@@ -1,9 +1,22 @@
-eZ Find
-=======
+eZ Find, the fork
+=================
+
+This fork is based on the last eZ Find master version avilable for the community.
+
+It will be further maintained and supported by K-Minds (Paul Borgermans), in addition of providing
+new features and support for the more recent Apache Solr releases
+
+Bug reports and enhancements can be done through the Github issue tracker 
+
+https://github.com/kminds/ezfind
+
+
+eZ Find (original README starts here)
+=====================================
 
 License: See, [LICENSE](LICENSE)
 
-Installation: See, [doc/INSTALL.md](doc/INSTALL.md)
+Installation: See, [doc/INSTALL.md](doc/INSTALL.md
 
 eZ Find is a search extension for eZ Publish, providing more functionality and
 better results than the default search in eZ Publish.
@@ -25,7 +38,7 @@ structures from previous searches and, during indexing, updates these as well.
 Therefore, the more the search engine is used, the faster it becomes.
 
 
-Issue tracker
--------------
+Issue tracker (defunct)
+-----------------------
 Submitting bugs, improvements and stories is possible on https://jira.ez.no/browse/EZP.
 If you discover a security issue, please see how to responsibly report such issues on https://doc.ez.no/Security.
