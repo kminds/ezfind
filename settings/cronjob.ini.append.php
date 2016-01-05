@@ -12,4 +12,7 @@ Scripts[]=ezfindexsubtree.php
 [CronjobPart-ezfindexsubtree]
 Scripts[]=ezfindexsubtree.php
 
+[CronjobPart-ezfindexmissingbyid]
+Scripts[]=ezfindexmissingbyid.php
+
 */ ?>
