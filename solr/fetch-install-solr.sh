@@ -23,6 +23,5 @@ tar -xzf /tmp/solr-archive.tgz -C $TARGET_ROOT_DIR --strip-components=1
 
 echo "Preparing data directories and installing default configsets .."
 mkdir -p $TARGET_DATA_DIR
-cp $TARGET_ROOT_DIR/solr/server/solr/solr.xml $TARGET_DATA_DIR/solr
 
 cp -r configsets/* $TARGET_DATA_DIR/configsets
