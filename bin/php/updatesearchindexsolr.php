@@ -435,7 +435,7 @@ class ezfUpdateSearchIndexSolr
                 $result = $searchEngine->addObject( $object, false, $this->commitWithin * 1000 );
                 if ( !$result )
                 {
-                    $this->CLI->error( ' Failed indexing ' . $object->attribute('class_identifier') .  ' object with ID ' . $object->attribute( 'id' ) );
+                    $this->CLI->error( ' Failed indexing ' . $object->attribute('class_identifier') .  ' object with ID ' . $object->attribute( 'id' ) . ' and main node id ' . $object->attribute('main_node_id'));
                 }
                 ++$count;
             }

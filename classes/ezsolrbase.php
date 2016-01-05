@@ -486,6 +486,7 @@ class eZSolrBase
     {
         $connectionTimeout = $this->SolrINI->variable( 'SolrBase', 'ConnectionTimeout' );
         $processTimeout = $this->SolrINI->variable( 'SolrBase', 'ProcessTimeout' );
+        $maxRetries = (int)$this->SolrINI->variable( 'SolrBase', 'ProcessMaxRetries' );
 
 
         if ( extension_loaded( 'curl' ) )
@@ -494,7 +495,9 @@ class eZSolrBase
             curl_setopt( $ch, CURLOPT_URL, $url );
             curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
             curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT, $connectionTimeout );
+            curl_setopt( $ch, CURLOPT_CONNECTTIMEOUT_MS, $connectionTimeout *1000 );
             curl_setopt( $ch, CURLOPT_TIMEOUT, $processTimeout );
+            curl_setopt( $ch, CURLOPT_TIMEOUT_MS, $processTimeout * 1000 );
             if ( $this->SolrINI->variable( 'SolrBase', 'SearchServerAuthentication' ) === 'enabled' )
             {
                 if ( $this->SolrINI->variable( 'SolrBase', 'SearchServerAuthenticationMethod' ) === 'basic' )
@@ -513,14 +516,36 @@ class eZSolrBase
                     curl_setopt( $ch, CURLOPT_HTTPHEADER, array ( 'Content-Type: ' . $contentType ) );
                 }
             }
+            $start_curl = microtime(true);
 
-            $data = curl_exec( $ch );
-            $errNo = curl_errno( $ch );
-            $err = curl_error( $ch );
+            // Be a bit more robust when Solr is busy with segment merging or other blocking operations
+            // causing connect failures
+            $connectRetries = 0;
+            while ( $connectRetries < $maxRetries ) {
+                $data = curl_exec( $ch );
+                $errNo = curl_errno( $ch );
+                $err = curl_error( $ch );
+                if ($errNo == 7) {
+                    echo "[z]";
+                    $connectRetries++;
+                    sleep($connectRetries);
+                } else {
+                    break;
+                }
+            }
+
+
             curl_close( $ch );
+
+            $curlingtime = microtime(true) - $start_curl;
             if  ( $errNo )
             {
-                throw new ezfSolrException( __METHOD__ . ' - curl error: ' . $err, $errNo );
+                throw new ezfSolrException( __METHOD__ .
+                    ' - curl error: ' . $err .
+                    ' cto ' . $connectionTimeout .
+                    ' pto ' . $processTimeout .
+                    ' real ' . $curlingtime,
+                    $errNo );
             }
             else
             {
