@@ -1721,6 +1721,10 @@ class eZSolr implements ezpSearchEngine
                             {
                                 $emit['fields'][$fieldName] = $fieldValue;
                             }
+                            else
+                            {
+                                $emit[$fieldName] = $fieldValue;
+                            }
                         }
                     }
                     $emit['highlight'] = isset( $highLights[$doc[ezfSolrDocumentFieldBase::generateMetaFieldName( 'guid' )]] ) ?

@@ -52,7 +52,8 @@ class ezfSearchResultInfo
                       'spellcheck_collation',
                       'interestingTerms',
                       'clusters',
-                      'highlighting'
+                      'highlighting',
+                      'raw_facet_fields'
             );
     }
 
@@ -305,6 +306,19 @@ class ezfSearchResultInfo
                     return false;
                 }
             } break;
+
+            case 'raw_facet_fields':
+            {
+                if ( isset( $this->ResultArray['facet_counts']['facet_fields'] ) )
+                {
+                    return $this->ResultArray['facet_counts']['facet_fields'];
+                }
+                else
+                {
+                    return false;
+                }
+            } break;
+
 
             case 'facet_ranges':
             {
