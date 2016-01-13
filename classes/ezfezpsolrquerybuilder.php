@@ -119,8 +119,8 @@ class ezfeZPSolrQueryBuilder
         $solrIni = eZINI::instance( 'solr.ini' );
         $siteIni = eZINI::instance( 'site.ini' );
 
-        $offset = ( isset( $params['SearchOffset'] ) && $params['SearchOffset'] ) ? $params['SearchOffset'] : 0;
-        $limit = ( isset( $params['SearchLimit']  ) && $params['SearchLimit'] ) ? $params['SearchLimit'] : 10;
+        $offset =  isset( $params['SearchOffset'] )  ? $params['SearchOffset'] : 0;
+        $limit =  isset( $params['SearchLimit'] ) ? $params['SearchLimit'] : 10;
         $subtrees = isset( $params['SearchSubTreeArray'] ) ? $params['SearchSubTreeArray'] : array();
         $contentClassID = ( isset( $params['SearchContentClassID'] ) && $params['SearchContentClassID'] <> -1 ) ? $params['SearchContentClassID'] : false;
         $contentClassAttributeID = ( isset( $params['SearchContentClassAttributeID'] ) && $params['SearchContentClassAttributeID'] <> -1 ) ? $params['SearchContentClassAttributeID'] : false;
@@ -451,7 +451,7 @@ class ezfeZPSolrQueryBuilder
             }
             else
             {
-                $fieldsToReturnString .= ' ' . implode( ' ', $fieldsToReturn);
+                $fieldsToReturnString .= ' ' . implode( ',', $fieldsToReturn);
             }
 
         }
