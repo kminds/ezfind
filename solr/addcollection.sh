@@ -21,7 +21,7 @@ then
    exit 
 fi
 
-TARGET_CONF_DIR='server/solr'
+TARGET_DATA_DIR='server/solr'
 
 # Override config values 
 if [[ -f config.in.sh ]]
@@ -31,9 +31,9 @@ fi
 
 # safe create dir, so can also be used to update
 
-mkdir -p $TARGET_CONF_DIR/$2
-cp -r configsets/ezp-default/conf $TARGET_CONF_DIR/$2
-cp -r solr.languages/$1/* $TARGET_CONF_DIR/$2/conf
+mkdir -p $TARGET_DATA_DIR/$2
+cp -r configsets/ezp-default/conf $TARGET_DATA_DIR/$2
+cp -r solr.languages/$1/* $TARGET_DATA_DIR/$2/conf
 
 
 echo "IMPORTANT: make sure the core definition for \"$2\" is also configured at the application level"

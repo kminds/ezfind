@@ -1,8 +1,8 @@
 #!/bin/bash
 command -v curl >/dev/null 2>&1 || { echo >&2 "Curl is required. Aborting."; exit 1; }
 
-DOWNLOAD_URI_SOLR=http://www.eu.apache.org/dist/lucene/solr/5.4.0/solr-5.4.0.tgz
-TEMP_ARCHIVE=/tmp/solr-archive.tgz
+DOWNLOAD_URI_SOLR=http://apache.belnet.be/lucene/solr/5.4.1/solr-5.4.1.tgz
+TEMP_ARCHIVE=solr-5.4.1.tgz
 # suggested TARGET_ROOT_DIR='/opt/app/solr'
 TARGET_ROOT_DIR='.'
 
