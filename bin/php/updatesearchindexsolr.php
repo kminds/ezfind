@@ -608,7 +608,7 @@ class ezfUpdateSearchIndexSolr
         }
     }
 
-    const DEFAULT_COMMIT_WITHIN = 30;
+    const DEFAULT_COMMIT_WITHIN = 300;
 
     private $commitWithin = self::DEFAULT_COMMIT_WITHIN;
 
