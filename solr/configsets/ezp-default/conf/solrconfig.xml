@@ -35,7 +35,7 @@
        that you fully re-index after changing this setting as it can
        affect both how text is indexed and queried.
   -->
-  <luceneMatchVersion>4.10.1</luceneMatchVersion>
+  <luceneMatchVersion>5.4.1</luceneMatchVersion>
 
   <!-- <lib/> directives can be used to instruct Solr to load an Jars
        identified and use them to resolve any "plugins" specified in
@@ -373,8 +373,9 @@
       -->
 
      <autoCommit>
-       <maxTime>${solr.autoCommit.maxTime:15000}</maxTime>
+       <maxTime>${solr.autoCommit.maxTime:300000}</maxTime>
        <openSearcher>false</openSearcher>
+       <waitSearcher>false</waitSearcher>
      </autoCommit>
 
     <!-- softAutoCommit is like autoCommit except it causes a
@@ -383,10 +384,10 @@
          faster and more near-realtime friendly than a hard commit.
       -->
 
-    <!-- <autoSoftCommit>
-       <maxTime>${solr.autoSoftCommit.maxTime:-1}</maxTime>
+     <autoSoftCommit>
+       <maxTime>${solr.autoSoftCommit.maxTime:5000}</maxTime>
      </autoSoftCommit>
-   -->
+ 
     <!-- Update Related Event Listeners
 
          Various IndexWriter related events can trigger Listeners to
@@ -1211,35 +1212,6 @@
   <requestHandler name="/analysis/document"
                   class="solr.DocumentAnalysisRequestHandler"
                   startup="lazy" />
-
-  <!-- Admin Handlers
-
-       Admin Handlers - This will register all the standard admin
-       RequestHandlers.
-    -->
-  <requestHandler name="/admin/"
-                  class="solr.admin.AdminHandlers" />
-  <!-- This single handler is equivalent to the following... -->
-  <!--
-     <requestHandler name="/admin/luke"       class="solr.admin.LukeRequestHandler" />
-     <requestHandler name="/admin/system"     class="solr.admin.SystemInfoHandler" />
-     <requestHandler name="/admin/plugins"    class="solr.admin.PluginInfoHandler" />
-     <requestHandler name="/admin/threads"    class="solr.admin.ThreadDumpHandler" />
-     <requestHandler name="/admin/properties" class="solr.admin.PropertiesRequestHandler" />
-     <requestHandler name="/admin/file"       class="solr.admin.ShowFileRequestHandler" >
-    -->
-  <!-- If you wish to hide files under ${solr.home}/conf, explicitly
-       register the ShowFileRequestHandler using:
-    -->
-  <!--
-     <requestHandler name="/admin/file"
-                     class="solr.admin.ShowFileRequestHandler" >
-       <lst name="invariants">
-         <str name="hidden">synonyms.txt</str>
-         <str name="hidden">anotherfile.txt</str>
-       </lst>
-     </requestHandler>
-    -->
 
   <!-- ping/healthcheck -->
   <requestHandler name="/admin/ping" class="solr.PingRequestHandler">
