@@ -277,9 +277,9 @@ class ezfeZPSolrQueryBuilder
 
 
         $paramFilterQuery = $this->getParamFilterQuery( $params );
-        if ( $paramFilterQuery )
+        if ( !empty($paramFilterQuery) )
         {
-            $filterQuery[] = $paramFilterQuery;
+            $filterQuery = array_merge( $filterQuery, $paramFilterQuery );
         }
 
         //add raw filters
@@ -759,9 +759,9 @@ class ezfeZPSolrQueryBuilder
         }
 
         $paramFilterQuery = $this->getParamFilterQuery( $params );
-        if ( $paramFilterQuery )
+        if ( !empty($paramFilterQuery) )
         {
-            $filterQuery[] = $paramFilterQuery;
+            $filterQuery = array_merge( $filterQuery, $paramFilterQuery );
         }
 
         //add raw filters
@@ -1002,7 +1002,7 @@ class ezfeZPSolrQueryBuilder
     {
         if ( empty( $parameterList['Filter'] ) )
         {
-            return null;
+            return array();
         }
 
         $booleanOperator = $this->getBooleanOperatorFromFilter( $parameterList['Filter'] );
@@ -1049,7 +1049,10 @@ class ezfeZPSolrQueryBuilder
             }
         }
 
-        return implode( " $booleanOperator ", $filterQueryList );
+        if ( $booleanOperator === 'AND') {
+            return $filterQueryList;
+        }
+        return array(implode( " $booleanOperator ", $filterQueryList ));
     }
 
     /**
@@ -1277,7 +1280,7 @@ class ezfeZPSolrQueryBuilder
             }
 
             // Get offset
-            if ( !empty( $facetDefinition['offset'] ) )
+            if ( isset( $facetDefinition['offset'] ) )
             {
                 $queryPart['offset'] = $facetDefinition['offset'];
             }
@@ -1287,7 +1290,7 @@ class ezfeZPSolrQueryBuilder
             }
 
             // Get mincount
-            if ( !empty( $facetDefinition['mincount'] ) )
+            if ( isset( $facetDefinition['mincount'] ) )
             {
                 $queryPart['mincount'] = $facetDefinition['mincount'];
             }
