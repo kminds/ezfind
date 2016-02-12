@@ -117,15 +117,17 @@ class eZSolrBase
      *
      * @param string $request request name (examples: /select, /update, ...)
      * @param string $postData post data
-     * @param string $languageCodes A language code string
      * @param string $contentType POST content type
      *
+     * @param string $useragent
+     * @param bool $robustRetry
      * @return string Result of HTTP Request ( without HTTP headers )
+     * @internal param string $languageCodes A language code string
      */
-    protected function postQuery( $request, $postData, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE )
+    protected function postQuery( $request, $postData, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT, $robustRetry = false )
     {
         $url = $this->SearchServerURI . $request;
-        return $this->sendHTTPRequestRetry( $url, $postData, $contentType );
+        return $this->sendHTTPRequestRetry( $url, $postData, $contentType, $userAgent, $robustRetry );
     }
 
     /**
@@ -213,11 +215,15 @@ class eZSolrBase
      * all pending additions and deletes
      * Since eZFind 5.3 Solr 4.x, support softCommit parameter
      * @param boolean $softCommit if set/evaluates to true, will perform a soft commit
-     *
+     * @param boolean $waitSearcher
+     * @return string
      */
-    function commit( $softCommit = false )
+    function commit( $softCommit = false, $waitSearcher = false )
     {
-        $commitElement = $softCommit ? '<commit softCommit="true" />' : '<commit/>' ;
+        // simple attribute processing
+        $commitElement = $softCommit ? ' softCommit="true" ' : ' softCommit="false" ';
+        $commitElement .= $waitSearcher ? ' waitSearcher="true" ' : ' waitSearcher="false" ';
+        $commitElement =  '<commit ' . $commitElement . '/>';
         return $this->postQuery (  '/update', $commitElement, 'text/xml' );
     }
 
@@ -326,7 +332,8 @@ class eZSolrBase
             }
             $postString .= '</add>';
 
-            $updateResult = $this->postQuery ( '/update', $postString, 'text/xml' );
+            // Try really hard to post for doc, but may introduce delays in upstream code if server is not running
+            $updateResult = $this->postQuery ( '/update', $postString, 'text/xml', self::DEFAULT_REQUEST_USERAGENT, true );
 
             if ( $optimize )
             {
@@ -431,7 +438,7 @@ class eZSolrBase
      *
      * @return HTTP result ( without headers ), false if the request fails.
      */
-    protected function sendHTTPRequestRetry( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT )
+    protected function sendHTTPRequestRetry( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT, $robustRetry = false )
     {
         $maxRetries = (int)$this->SolrINI->variable( 'SolrBase', 'ProcessMaxRetries' );
         if ( $maxRetries < 1 )
@@ -446,7 +453,7 @@ class eZSolrBase
             try
             {
                 $tries++;
-                return $this->sendHTTPRequest( $url, $postData, $contentType, $userAgent );
+                return $this->sendHTTPRequest( $url, $postData, $contentType, $userAgent, $robustRetry );
             }
             catch ( ezfSolrException $e )
             {
@@ -482,7 +489,7 @@ class eZSolrBase
      *                          If curl is available, this exception will also be thrown, with its error number and message
      * @return HTTP result ( without headers ), false if the request fails.
      */
-    function sendHTTPRequest( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT )
+    function sendHTTPRequest( $url, $postData = false, $contentType = self::DEFAULT_REQUEST_CONTENTTYPE, $userAgent = self::DEFAULT_REQUEST_USERAGENT, $robustRetry = false )
     {
         $connectionTimeout = $this->SolrINI->variable( 'SolrBase', 'ConnectionTimeout' );
         $processTimeout = $this->SolrINI->variable( 'SolrBase', 'ProcessTimeout' );
@@ -521,11 +528,11 @@ class eZSolrBase
             // Be a bit more robust when Solr is busy with segment merging or other blocking operations
             // causing connect failures
             $connectRetries = 0;
-            while ( $connectRetries < $maxRetries ) {
+            while ( ( $connectRetries < $maxRetries ) ) {
                 $data = curl_exec( $ch );
                 $errNo = curl_errno( $ch );
                 $err = curl_error( $ch );
-                if ($errNo == 7) {
+                if (($errNo == 7) && $robustRetry) {
                     echo "[z]";
                     $connectRetries++;
                     sleep($connectRetries);
