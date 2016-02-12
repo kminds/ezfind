@@ -823,19 +823,19 @@ class eZSolr implements ezpSearchEngine
     /**
      * Performs a solr COMMIT
      */
-    function commit( $softCommit = false )
+    function commit( $softCommit = false, $waitSearcher = false)
     {
 
         if ( $this->UseMultiLanguageCores === true )
         {
             foreach ( $this->SolrLanguageShards as $shard )
             {
-                $shard->commit( $softCommit );
+                $shard->commit( $softCommit, $waitSearcher );
             }
         }
         else
         {
-            $this->Solr->commit( $softCommit );
+            $this->Solr->commit( $softCommit, $waitSearcher );
         }
 
     }
@@ -1725,6 +1725,8 @@ class eZSolr implements ezpSearchEngine
                             {
                                 $emit[$fieldName] = $fieldValue;
                             }
+                        } else {
+                            $emit[$fieldName] = $fieldValue;
                         }
                     }
                     $emit['highlight'] = isset( $highLights[$doc[ezfSolrDocumentFieldBase::generateMetaFieldName( 'guid' )]] ) ?
