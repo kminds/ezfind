@@ -77,7 +77,7 @@ class ezfUpdateSearchIndexSolr
         $this->Script->startup();
 
         $this->Options = $this->Script->getOptions(
-            "[db-host:][db-user:][db-password:][db-database:][db-type:|db-driver:][sql][clean][clean-all][conc:][php-exec:][commit-within:]",
+            "[db-host:][db-user:][db-password:][db-database:][db-type:|db-driver:][sql][clean][clean-all][conc:][php-exec:][commit-within:][class-identifiers:]",
             "",
             array(
                 'db-host' => "Database host",
@@ -93,6 +93,7 @@ class ezfUpdateSearchIndexSolr
                 'php-exec' => 'Full path to PHP executable',
                 'commit-within' => 'Commit to Solr within this time in seconds (default '
                     . self::DEFAULT_COMMIT_WITHIN . ' seconds)',
+                'class-identifiers' => 'Index objects belonging to this class/content type only, can be a comma separated list of identifiers or numerical values (no spaces) '
             )
         );
         $this->Script->initialize();
@@ -106,6 +107,12 @@ class ezfUpdateSearchIndexSolr
 
         // Fix siteaccess
         $siteAccess = $this->Options['siteaccess'] ? $this->Options['siteaccess'] : false;
+
+        $this->classIdentifiers = array();
+        if ( isset( $this->Options['class-identifiers'] ) )
+        {
+            $this->classIdentifiers =  preg_split('/,/', $this->Options['class-identifiers']);
+        }
         if ( $siteAccess )
         {
             $this->changeSiteAccessSetting( $siteAccess );
@@ -234,7 +241,17 @@ class ezfUpdateSearchIndexSolr
             $nodeID = $node->attribute( 'node_id' );
             $offset = 0;
 
-            $subtreeCount = $node->subTreeCount( array( 'Limitation' => array(), 'MainNodeOnly' => true ) );
+            $nodeTreeParams = array(
+                'Limitation' => array(),
+                'MainNodeOnly' => true,
+            );
+
+            if (count ($this->classIdentifiers ) > 0 ) {
+                $nodeTreeParams['ClassFilterType']='include';
+                $nodeTreeParams['ClassFilterArray'] = $this->classIdentifiers;
+            }
+
+            $subtreeCount = $node->subTreeCount( $nodeTreeParams );
             // While $offset < subtree count, loop through the nodes.
             while( $offset < $subtreeCount )
             {
@@ -411,17 +428,20 @@ class ezfUpdateSearchIndexSolr
         }
         $searchEngine = new eZSolr();
 
-        if (
-            $subTree = $node->subTree(
-                array(
-                    'Offset' => $offset,
-                    'Limit' => $limit,
-                    'SortBy' => array(),
-                    'Limitation' => array(),
-                    'MainNodeOnly' => true
-                )
-            )
-        )
+        $nodeTreeParams = array(
+            'Offset' => $offset,
+            'Limit' => $limit,
+            'SortBy' => array(),
+            'Limitation' => array(),
+            'MainNodeOnly' => true
+        );
+
+        if ( count( $this->classIdentifiers ) > 0 ) {
+            $nodeTreeParams['ClassFilterType'] = 'include';
+            $nodeTreeParams['ClassFilterArray'] = $this->classIdentifiers;
+        }
+
+        if ( $subTree = $node->subTree( $nodeTreeParams ) )
         {
             foreach ( $subTree as $innerNode )
             {
@@ -457,9 +477,17 @@ class ezfUpdateSearchIndexSolr
             array( 'parent_node_id' => 1, 'depth' => 1 )
         );
         $subTreeCount = 0;
+        $nodeTreeParams = array('Limitation' => array(), 'MainNodeOnly' => true );
+        if ( count( $this->classIdentifiers ) > 0 ) {
+            $nodeTreeParams['ClassFilterType'] = 'include';
+            $nodeTreeParams['ClassFilterArray'] = $this->classIdentifiers;
+        }
+        //print_r($nodeTreeParams);
+
+
         foreach ( array_keys ( $topNodeArray ) as $key  )
         {
-            $subTreeCount += $topNodeArray[$key]->subTreeCount( array( 'Limitation' => array(), 'MainNodeOnly' => true ) );
+            $subTreeCount += $topNodeArray[$key]->subTreeCount( $nodeTreeParams );
         }
 
         return $subTreeCount;
