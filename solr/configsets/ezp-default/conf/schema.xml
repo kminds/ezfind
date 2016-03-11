@@ -65,7 +65,6 @@
             (int, float, boolean, string...)
      -->
 
-  <types>
     <!-- field type definitions. The "name" attribute is
        just a label to be used by field definitions.  The "class"
        attribute and any other attributes determine the real
@@ -498,10 +497,6 @@
     <fieldtype name="geohash" class="solr.GeoHashField"/>
 
 
- </types>
-
-
- <fields>
    <!-- Valid attributes for fields:
      name: mandatory - the name for the field
      type: mandatory - the name of a previously defined type from the
@@ -692,7 +687,6 @@
         unknown fields indexed and/or stored by default -->
    <!--dynamicField name="*" type="ignored" multiValued="true" /-->
 
- </fields>
 
  <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
