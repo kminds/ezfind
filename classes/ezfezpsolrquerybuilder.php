@@ -304,7 +304,7 @@ class ezfeZPSolrQueryBuilder
         //the array_unique below is necessary because attribute identifiers are not unique .. and we get as
         //much highlight snippets as there are duplicate attribute identifiers
         //these are also in the list of query fields (dismax, ezpublish) request handlers
-	$queryFields = array_unique( $this->getClassAttributes( $contentClassID, $contentClassAttributeID, $fieldTypeExcludeList ) );
+	    $queryFields = array_unique( $this->getClassAttributes( $contentClassID, $contentClassAttributeID, $fieldTypeExcludeList ) );
 
         //highlighting only in the attributes, otherwise the object name is repeated in the highlight, which is already
         //partly true as it is mostly composed of one or more attributes.

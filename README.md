@@ -16,7 +16,7 @@ eZ Find (original README starts here)
 
 License: See, [LICENSE](LICENSE)
 
-Installation: See, [doc/INSTALL.md](doc/INSTALL.md
+Installation: See, [doc/INSTALL.md](doc/INSTALL.md)
 
 eZ Find is a search extension for eZ Publish, providing more functionality and
 better results than the default search in eZ Publish.
