@@ -29,11 +29,12 @@ $idArrayFromSolr = [];
 $idQuerySolr = ['q' => '*:*','rows' => 1000000000, 'fl' => 'meta_id_si'];
 
 if ( $eZSolr->UseMultiLanguageCores === true) {
+    echo "Using multiple cores for translations ... \n";
     foreach ( $eZSolr->SolrLanguageShards as $language => $solrShard ) {
         $idArrayFromSolr[$language] = $solrShard->rawSearch( $idQuerySolr, 'json' )['response']['docs'];
     }
 } else {
-    $idArrayFromSolr['default'] = & $eZSolr->Solr->rawSearch( $idQuerySolr, 'json' )['response']['docs'];
+    $idArrayFromSolr['default'] = $eZSolr->Solr->rawSearch( $idQuerySolr, 'json' )['response']['docs'];
 }
 
 
@@ -52,6 +53,7 @@ echo "Memory used after querying DB: " .  formatBytes(memory_get_peak_usage( tru
 echo "Checking " . count( $idArrayFromDB ) . " objects in DB\n";
 // look up
 foreach ( array_keys( $idArrayFromSolr ) as $language ) {
+    echo "Checking language " . $language . "\n";
     foreach ( $idArrayFromSolr[$language] as $row ) {
         // if found in any language, we consider the index to be ok
         $lookupArraySolr[$row['meta_id_si']] = 'ok';
@@ -70,6 +72,7 @@ foreach ( $idArrayFromDB as $row ) {
         $found++;
     } else {
         $missing++;
+        //file_put_contents('/tmp/ezfindmissing', $row['id'] . "\n", FILE_APPEND );
         $eZSolr->addObject( \eZContentObject::fetch( $row['id'] ), false, 20000 );
     }
 }
