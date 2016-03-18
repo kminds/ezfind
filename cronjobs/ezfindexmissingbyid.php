@@ -16,12 +16,34 @@ function formatBytes($size, $precision = 2)
 
 $start_time = microtime(true);
 echo "Memory used at start: " .   formatBytes(memory_get_peak_usage( true ),0 ) . "\n";
+
 // check that solr is enabled and used
 $eZSolr = eZSearch::getEngine();
-if ( !$eZSolr instanceof eZSolr )
-{
-    $script->shutdown( 1, 'The current search engine plugin is not eZSolr' );
+if (!$eZSolr instanceof eZSolr) {
+    $cli->output('The current search engine plugin is not eZSolr');
+    return;
 }
+
+// function to check if Solr is running for a given core
+function isSolrRunning($core)
+{
+    $pingResult = $core->ping();
+    return isset( $pingResult['status'] ) && $pingResult['status'] === 'OK';
+}
+
+// check Solr health against current configuration and exit upon failure
+if ($eZSolr->UseMultiLanguageCores === true) {
+    foreach ($eZSolr->SolrLanguageShards as $language => $solrShard) {
+        if (!isSolrRunning($solrShard)) {
+            $cli->output('Core for language ' . $language . ' is not reachable');
+            return;
+        }
+    }
+} elseif (!isSolrRunning($eZSolr->Solr))  {
+    $cli->output('The solr core for this instance is not reachable');
+    return;
+}
+
 
 $db = eZDB::instance();
 
